@@ -14,6 +14,7 @@ warnings.filterwarnings('ignore')
 df = pd.read_csv('large_agri_dataset.csv')
 
 class EnhancedCropCyclePredictionModel:
+  
     def __init__(self):
         self.yield_model = None
         self.cycle_models = {}

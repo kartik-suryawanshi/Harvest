@@ -375,10 +375,40 @@ const Dashboard = () => {
   };
 
   const savePrediction = async () => {
-    if (!forecastData || !user) return;
+    if (!forecastData) {
+      toast({
+        title: "No Data to Save",
+        description: "Please generate a forecast before saving",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to save predictions",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
 
     setIsSaving(true);
     try {
+      // Verify session is still valid
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        throw new Error('Session expired. Please sign in again.');
+      }
+
+      // Validate required fields
+      if (!selectedDistrict || !selectedCrop || !selectedSeason) {
+        throw new Error('Missing required fields: district, crop, or season');
+      }
+
       const payload = {
         user_id: user.id,
         district: selectedDistrict,
@@ -388,21 +418,33 @@ const Dashboard = () => {
         yield_prediction: Number(parseFloat(forecastData.yieldPrediction.value).toFixed(2)),
         confidence_score: Math.round(forecastData.yieldPrediction.confidence),
         risk_level: forecastData.riskAssessment.level > 70 ? 'high' : forecastData.riskAssessment.level > 40 ? 'moderate' : 'low',
-        irrigation_schedule: forecastData.irrigationSchedule,
+        irrigation_schedule: forecastData.irrigationSchedule || null,
         weather_data: {
           currentWeather: forecastData.currentWeather,
-          weatherTrend: forecastData.weatherTrend,
-          weeklyForecast: forecastData.weeklyForecast
+          weatherTrend: forecastData.weatherTrend || [],
+          weeklyForecast: forecastData.weeklyForecast || []
         },
-      } as const;
+      };
 
-      const { error } = await supabase
+      console.log('Saving prediction with payload:', payload);
+
+      const { data, error } = await supabase
         .from('predictions')
         .insert(payload)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
+      }
+
+      console.log('Prediction saved successfully:', data);
 
       toast({
         title: "Prediction Saved",
@@ -411,11 +453,26 @@ const Dashboard = () => {
       });
     } catch (error: any) {
       console.error('Save prediction failed:', error);
+      
+      let errorMessage = "Could not save prediction to history";
+      
+      if (error?.code === 'PGRST116') {
+        errorMessage = "Table 'predictions' not found. Please ensure database migrations are applied.";
+      } else if (error?.code === '42501' || error?.message?.includes('permission denied')) {
+        errorMessage = "Permission denied. Please check your authentication status.";
+      } else if (error?.code === '23503') {
+        errorMessage = "Invalid user reference. Please sign in again.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.details) {
+        errorMessage = error.details;
+      }
+      
       toast({
         title: "Save Failed",
-        description: error?.message || "Could not save prediction to history",
+        description: errorMessage,
         variant: "destructive",
-        duration: 3000,
+        duration: 5000,
       });
     } finally {
       setIsSaving(false);

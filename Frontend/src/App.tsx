@@ -12,6 +12,8 @@ import ChatWidget from "@/components/ChatWidget";
 import { I18nProvider } from "@/contexts/I18nContext";
 // import LandingPage from "./pages/Index"; // Assuming LandingPage is in Index.tsx or you want to use the LandingPage component
 import Dashboard from "./pages/Dashboard";
+import FarmerProfile from "./pages/FarmerProfile";
+import GovernmentSchemes from "./pages/GovernmentSchemes";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,16 @@ const App = () => (
             <Route path="/" element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <FarmerProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/schemes" element={
+              <ProtectedRoute>
+                <GovernmentSchemes />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
