@@ -10,7 +10,7 @@ export interface MlPredictResponse {
   crop_cycle: any;
   explanation_text: string;
   feature_importances: Array<{ name: string; impact: number }>;
-  prediction: { yield_t_ha: number; crop_type: string; ci_lower?: number; ci_upper?: number };
+  prediction: { yield_t_ha: number; crop_type: string; ci_lower?: number; ci_upper?: number; confidence_score?: number; vs_historical?: number };
 }
 
 export async function predictCrop(body: MlPredictRequest, baseUrl?: string): Promise<MlPredictResponse> {

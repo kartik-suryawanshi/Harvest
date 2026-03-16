@@ -264,8 +264,12 @@ const Dashboard = () => {
           riskAssessment: liveRisk,
           weatherTrend: weatherTrendData.length ? weatherTrendData : (forecastData?.weatherTrend || []),
           weeklyForecast: weeklyForecastData.length ? weeklyForecastData : (forecastData?.weeklyForecast || []),
-          yieldPrediction: { value: (ml.prediction.yield_t_ha ?? 0).toFixed(2), confidence: 80, vsHistorical: 0 },
-          featureImportance: (ml.feature_importances || []).map(f => ({ name: normalizeFeatureName(f.name), impact: Math.round((f.impact || 0) * 100) })),
+          yieldPrediction: { 
+            value: (ml.prediction.yield_t_ha ?? 0).toFixed(2), 
+            confidence: ml.prediction.confidence_score ? Math.round(ml.prediction.confidence_score * 100) : 80, 
+            vsHistorical: ml.prediction.vs_historical || 0 
+          },
+          featureImportance: (ml.feature_importances || forecastData?.featureImportance || []).map((f: any) => ({ name: normalizeFeatureName(f.name), impact: Math.round((f.impact || 0) * 100) })),
           explanation: ml.explanation_text || '',
           irrigationSchedule: irrigationScheduleResp?.irrigation_schedule || (forecastData?.irrigationSchedule || []),
           waterSavings: typeof irrigationScheduleResp?.water_savings === 'number' ? irrigationScheduleResp.water_savings : 0,
@@ -326,10 +330,10 @@ const Dashboard = () => {
           weeklyForecast: weeklyForecastData.length ? weeklyForecastData : (forecastData?.weeklyForecast || []),
           yieldPrediction: {
             value: (ml.prediction.yield_t_ha ?? 0).toFixed(2),
-            confidence: 80,
-            vsHistorical: 0,
+            confidence: ml.prediction.confidence_score ? Math.round(ml.prediction.confidence_score * 100) : 80,
+            vsHistorical: ml.prediction.vs_historical || 0,
           },
-          featureImportance: (ml.feature_importances || []).map(f => ({ name: normalizeFeatureName2(f.name), impact: Math.round((f.impact || 0) * 100) })),
+          featureImportance: (ml.feature_importances || forecastData?.featureImportance || []).map((f: any) => ({ name: normalizeFeatureName2(f.name), impact: Math.round((f.impact || 0) * 100) })),
           explanation: ml.explanation_text || '',
           irrigationSchedule: irrigationScheduleResp?.irrigation_schedule || (forecastData?.irrigationSchedule || []),
           waterSavings: typeof irrigationScheduleResp?.water_savings === 'number' ? irrigationScheduleResp.water_savings : 0,

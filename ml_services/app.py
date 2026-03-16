@@ -66,41 +66,20 @@ def predict():
 
         prediction = model.predict_with_current_date(crop, avg_temp, tmax, tmin, sowing_date)
         
-        # Post-processing: Scale down values if they seem too high (common with synthetic data)
-        # Define approximate realistic max yields (tonnes/ha) for common crops
-        REALISTIC_MAX = {
-            'Rice': 12.0,
-            'Wheat': 9.0,
-            'Maize': 14.0,
-            'Corn': 14.0,
-            'Soybean': 5.0,
-            'Cotton': 6.0,
-            'Sugarcane': 160.0
-        }
-        
+        # The model should naturally output the yield without artificial post-processing caps
+        # Removed hardcoded REALISTIC_MAX dampening and 0.85 scaling mechanism
         try:
+            # Simply assure values are appropriately rounded for UI delivery
             p_yield = prediction.get('prediction', {}).get('yield_t_ha', 0)
-            crop_name = prediction.get('prediction', {}).get('crop_type', '')
             
-            # Apply a general dampening factor (0.85) to be conservative
-            scaling_factor = 0.85
-            new_yield = p_yield * scaling_factor
-            
-            # Clamp to realistic max if available
-            max_val = REALISTIC_MAX.get(crop_name)
-            if max_val and new_yield > max_val:
-                new_yield = max_val * 0.95 # Cap it just under the max
-                
-            # Update prediction object
-            if new_yield != p_yield:
-                prediction['prediction']['yield_t_ha'] = round(new_yield, 2)
-                # Also scale CIs if present
+            if 'prediction' in prediction:
+                prediction['prediction']['yield_t_ha'] = round(p_yield, 2)
                 if 'ci_lower' in prediction['prediction']:
-                    prediction['prediction']['ci_lower'] = round(prediction['prediction']['ci_lower'] * scaling_factor, 2)
+                    prediction['prediction']['ci_lower'] = round(prediction['prediction']['ci_lower'], 2)
                 if 'ci_upper' in prediction['prediction']:
-                    prediction['prediction']['ci_upper'] = round(prediction['prediction']['ci_upper'] * scaling_factor, 2)
+                    prediction['prediction']['ci_upper'] = round(prediction['prediction']['ci_upper'], 2)
         except Exception as e:
-            print(f"Error scaling prediction: {e}")
+            print(f"Error handling prediction floats: {e}")
 
         # print("/predict response:", prediction)
         return jsonify(prediction)
@@ -476,20 +455,26 @@ def gemini_chat():
         # Extract suggestions and related questions from response
         response_text = response.text if response.text else "I couldn't generate a response at this time."
         
-        # Generate contextual suggestions
-        suggestions = [
-            "What is the best planting time for my crop?",
-            "How to optimize irrigation schedule?",
-            "What are the expected yields?",
-            "How to reduce farming risks?"
-        ]
-        
-        related_questions = [
-            "How to improve soil fertility?",
-            "What fertilizers should I use?",
-            "How to manage pests and diseases?",
-            "What are the best farming practices?"
-        ]
+        # Generate contextual suggestions dynamically based on the response
+        try:
+            suggest_prompt = f"Based on this agricultural response: '{response_text[:500]}...', provide exactly 3 short follow-up questions the user might ask. Format as JSON array of strings."
+            suggest_response = temp_model.generate_content(suggest_prompt)
+            raw_sug = suggest_response.text.strip('```json').strip('```').strip()
+            suggestions = json.loads(raw_sug)
+            if not isinstance(suggestions, list):
+                suggestions = ["What crops should I grow?", "How to improve soil health?", "Best irrigation methods?"]
+                
+             # Generate related topics
+            related_prompt = f"Based on this agricultural topic: '{response_text[:500]}...', provide exactly 3 related broad topics they should research. Format AS JSON array of strings."
+            related_response = temp_model.generate_content(related_prompt)
+            raw_rel = related_response.text.strip('```json').strip('```').strip()
+            related_questions = json.loads(raw_rel)
+            if not isinstance(related_questions, list):
+                related_questions = ["Soil Preparation", "Fertilizer Use", "Pest Management"]
+        except Exception as dynamicError:
+            print(f"Failed dynamic suggestions generation: {dynamicError}")
+            suggestions = ["What crops should I grow?", "How to improve soil health?", "Best irrigation methods?"]
+            related_questions = ["Soil Preparation", "Fertilizer Use", "Pest Management"]
         
         return jsonify({
             "response": response_text,
@@ -500,18 +485,9 @@ def gemini_chat():
     except Exception as e:
         print(f"Gemini API error: {e}")
         return jsonify({
-            "response": f"Sorry, I encountered an error: {str(e)}. Please try again or contact support.",
-            "suggestions": [
-                "What crops should I grow?",
-                "How to improve soil health?",
-                "What is the best irrigation schedule?"
-            ],
-            "relatedQuestions": [
-                "How to prepare soil for planting?",
-                "What fertilizers should I use?",
-                "How to manage pests and diseases?"
-            ]
-        }), 500
+            "error": "Service Unavailable",
+            "message": f"Sorry, I encountered an error: {str(e)}. Please try again."
+        }), 503
 
 
 if __name__ == "__main__":
