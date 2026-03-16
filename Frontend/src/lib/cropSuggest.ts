@@ -67,7 +67,7 @@ export async function getCropSuggestion(req: CropSuggestionRequest): Promise<Cro
     return {
       crops: ['Wheat', 'Rice', 'Maize'],
       rationale: `Service unavailable. Based generally on ${req.soilType} soil.`
-    };
+    };  
   }
 }
 
