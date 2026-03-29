@@ -9,6 +9,7 @@ import IndiaMap from './IndiaMap';
 import { useI18n } from '@/contexts/I18nContext';
 import MapPickerDialog from '@/components/MapPickerDialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Leaf } from 'lucide-react';
 
 interface ControlPanelProps {
   selectedDistrict: string;

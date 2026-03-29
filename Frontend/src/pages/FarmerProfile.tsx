@@ -440,7 +440,7 @@ const FarmerProfilePage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
                 <User className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-                Personal Information
+                {t('personal_information') || "Personal Information"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -492,7 +492,7 @@ const FarmerProfilePage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
                 <Sprout className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-                Farm Details
+                {t('farm_details') || "Farm Details"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -548,7 +548,7 @@ const FarmerProfilePage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
                 <Banknote className="h-5 w-5 md:h-6 md:w-6 text-primary" />
-                Financial & Support Status
+                {t('financial_support_status') || "Financial & Support Status"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -607,7 +607,7 @@ const FarmerProfilePage = () => {
               size="lg"
             >
               <Edit className="h-5 w-5 mr-2" />
-              Edit Profile
+              {t('edit_profile') || "Edit Profile"}
             </Button>
             <Button 
               onClick={handleDownloadPDF} 
@@ -616,7 +616,7 @@ const FarmerProfilePage = () => {
               size="lg"
             >
               <Download className="h-5 w-5 mr-2" />
-              Download Profile PDF
+              {t('download_profile_pdf') || "Download Profile PDF"}
             </Button>
           </div>
         </div>
@@ -640,7 +640,7 @@ const FarmerProfilePage = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <User className="h-5 w-5 text-primary" />
-                Personal Information
+                {t('personal_information') || "Personal Information"}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -768,7 +768,7 @@ const FarmerProfilePage = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <Sprout className="h-5 w-5 text-primary" />
-                Farm Details
+                {t('farm_details') || "Farm Details"}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">

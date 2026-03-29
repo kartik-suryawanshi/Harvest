@@ -474,15 +474,15 @@ const GovernmentSchemesPage = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-                Government Schemes & Eligibility
+                {t('gov_schemes_title') || "Government Schemes & Eligibility"}
               </h1>
               <p className="text-muted-foreground text-base md:text-lg">
-                Check your eligibility for various government agricultural schemes
+                {t('gov_schemes_desc') || "Check your eligibility for various government agricultural schemes"}
               </p>
             </div>
             <Button onClick={handleDownloadReport} variant="outline" size="lg" className="text-base">
               <Download className="h-5 w-5 mr-2" />
-              Download Report
+              {t('download_report') || "Download Report"}
             </Button>
           </div>
         </div>
@@ -494,7 +494,7 @@ const GovernmentSchemesPage = () => {
               <div className="flex-1">
                 <h2 className="text-xl md:text-2xl font-bold mb-2 flex items-center gap-2">
                   <Award className="h-6 w-6 text-primary" />
-                  Your Eligibility Score
+                  {t('your_eligibility_score') || "Your Eligibility Score"}
                 </h2>
                 <p className="text-muted-foreground mb-4">
                   You are eligible for <strong className="text-foreground">{eligibilityStats.eligible}</strong> out of{' '}
@@ -560,7 +560,7 @@ const GovernmentSchemesPage = () => {
 
         {/* Featured National Schemes */}
         <div className="mb-6">
-          <h2 className="text-xl md:text-2xl font-bold mb-4">Featured National Schemes</h2>
+          <h2 className="text-xl md:text-2xl font-bold mb-4">{t('featured_national_schemes') || "Featured National Schemes"}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {schemes.filter(s => ['1', '2', '3', '4', '5'].includes(s.id)).map((scheme) => (
               <Card key={scheme.id} className="hover:shadow-md transition-shadow">
@@ -591,7 +591,7 @@ const GovernmentSchemesPage = () => {
 
         {/* All Schemes */}
         <div id="eligibility-report">
-          <h2 className="text-xl md:text-2xl font-bold mb-4">All Available Schemes</h2>
+          <h2 className="text-xl md:text-2xl font-bold mb-4">{t('all_available_schemes') || "All Available Schemes"}</h2>
           <div className="space-y-4">
             {filteredSchemes.map((scheme) => (
               <Card key={scheme.id} className="hover:shadow-md transition-shadow">
@@ -664,7 +664,7 @@ const GovernmentSchemesPage = () => {
                       onClick={() => window.open(scheme.officialLink, '_blank')}
                     >
                       <ExternalLink className="h-4 w-4 mr-2" />
-                      Apply Now / Official Link
+                      {t('apply_now') || "Apply Now / Official Link"}
                     </Button>
                   </div>
                 </CardContent>

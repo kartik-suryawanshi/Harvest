@@ -76,4 +76,3 @@ export async function getLlmIrrigationSchedule(body: IrrigationRequest, baseUrl?
   return res.json();
 }
 
-

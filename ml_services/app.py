@@ -7,6 +7,7 @@ from typing import List, Dict, Any
 import math
 import google.generativeai as genai
 import json
+from services.residue_logic import get_residue_recommendation
 
 # Load environment variables from .env file
 try:
@@ -411,6 +412,21 @@ def irrigation_llm():
         })
     except Exception as e:
         print("/irrigation/llm error:", e)
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/residue/recommendation", methods=["POST"])
+def residue_recommendation():
+    try:
+        data = request.get_json(force=True) or {}
+        crop = str(data.get("crop", ""))
+        condition = str(data.get("condition", ""))
+        livestock = data.get("livestock", False)
+        goal = str(data.get("goal", ""))
+
+        result = get_residue_recommendation(crop, condition, livestock, goal)
+        return jsonify(result)
+    except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 

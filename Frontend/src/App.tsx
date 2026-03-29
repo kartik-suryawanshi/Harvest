@@ -14,6 +14,7 @@ import { I18nProvider } from "@/contexts/I18nContext";
 import Dashboard from "./pages/Dashboard";
 import FarmerProfile from "./pages/FarmerProfile";
 import GovernmentSchemes from "./pages/GovernmentSchemes";
+import ResidueModule from "./pages/ResidueModule";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,11 @@ const App = () => (
             <Route path="/schemes" element={
               <ProtectedRoute>
                 <GovernmentSchemes />
+              </ProtectedRoute>
+            } />
+            <Route path="/residue-advisor" element={
+              <ProtectedRoute>
+                <ResidueModule />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

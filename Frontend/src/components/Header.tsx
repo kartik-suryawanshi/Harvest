@@ -30,6 +30,7 @@ const Header = ({ scenario, onScenarioChange }: HeaderProps) => {
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/profile', label: 'Profile', icon: User },
     { path: '/schemes', label: 'Schemes', icon: Shield },
+    { path: '/residue-advisor', label: t('residue_advisor_title'), icon: Leaf }
   ];
 
   return (
