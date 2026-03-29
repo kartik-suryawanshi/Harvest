@@ -7,7 +7,7 @@ import { Leaf } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 
 const ResidueAdvisor = () => {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const [residueData, setResidueData] = useState<ResidueRecommendationResponse | null>(null);
 
@@ -15,20 +15,41 @@ const ResidueAdvisor = () => {
     setIsLoading(true);
     setResidueData(null);
     try {
-      const rData = await getResidueRecommendation(data);
+      const rData = await getResidueRecommendation({ ...data, lang });
       setResidueData(rData);
+
       toast({
         title: t('recommendation_generated') || "Recommendation Generated",
         description: t('customized_plan_ready') || "Your customized residue management plan is ready."
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      const errorMessage = err.message?.includes('ML API') 
+        ? err.message.split(': ').slice(1).join(': ') 
+        : (t('check_connection_try_again') || "Please check your connection and try again.");
+      
+      try {
+        // Try to parse if it's a JSON error from the API
+        const jsonError = JSON.parse(errorMessage);
+        if (jsonError.error) {
+          toast({
+            title: t('error_generating_rec') || "Error Generating Recommendation",
+            description: jsonError.error,
+            variant: "destructive"
+          });
+          return;
+        }
+      } catch (e) {
+        // fallback to the raw message
+      }
+
       toast({
         title: t('error_generating_rec') || "Error Generating Recommendation",
-        description: t('check_connection_try_again') || "Please check your connection and try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
+
       setIsLoading(false);
     }
   };

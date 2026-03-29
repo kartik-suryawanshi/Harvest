@@ -3,7 +3,9 @@ export interface ResidueRecommendationRequest {
   condition: string;
   livestock: boolean;
   goal: string;
+  lang?: string;
 }
+
 
 export interface ResidueRecommendationResponse {
   primary_method: string;

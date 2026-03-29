@@ -1,76 +1,56 @@
+import json
 from typing import Any, Dict
 
-def get_residue_recommendation(crop: str, condition: str, livestock: bool, goal: str) -> Dict[str, Any]:
+def get_residue_recommendation(crop: str, condition: str, livestock: bool, goal: str, lang: str = "en", model: Any = None) -> Dict[str, Any]:
     """
-    Returns a residue management recommendation based on a dictionary-based rule engine.
+    Returns a residue management recommendation using Gemini AI.
+    Strictly relies on AI; no rule-based fallback.
     """
-    crop = str(crop).lower()
-    condition = str(condition).lower()
-    if isinstance(livestock, str):
-        livestock = livestock.lower() in ("true", "yes")
-    
-    # Rule dictionary: (condition, livestock) -> recommendation
-    rules = {
-        "rice": {
-            ("dry", True): {"primary_method": "urea_treatment", "benefit_key": "high_protein", "steps_key": "urea_treatment_steps", "alternatives": ["fodder_blocks", "silage"]},
-            ("wet", None): {"primary_method": "silage", "benefit_key": "preservation", "steps_key": "silage_steps", "alternatives": ["chopping"]}
-        },
-        "cotton": {
-            (None, True): {"primary_method": "cottonseed_cake", "benefit_key": "high_protein", "steps_key": "cottonseed_cake_steps", "alternatives": ["chopping"]},
-            (None, False): {"primary_method": "chopping", "benefit_key": "soil_organic", "steps_key": "chopping_steps", "alternatives": []}
-        },
-        "soybean": {
-            (None, True): {"primary_method": "soybean_meal", "benefit_key": "high_protein", "steps_key": "soybean_meal_steps", "alternatives": []}
-        },
-        "soyabean": {
-            (None, True): {"primary_method": "soybean_meal", "benefit_key": "high_protein", "steps_key": "soybean_meal_steps", "alternatives": []}
-        },
-        "jowar": {
-            ("green", None): {"primary_method": "direct_feed", "benefit_key": "preservation", "steps_key": "direct_feed_steps", "alternatives": ["silage"]},
-            ("dry", None): {"primary_method": "urea_treatment", "benefit_key": "high_protein", "steps_key": "urea_treatment_steps", "alternatives": []}
-        },
-        "sugarcane": {
-            ("dry", None): {"primary_method": "molasses_urea", "benefit_key": "high_protein", "steps_key": "molasses_urea_steps", "alternatives": []},
-            ("wet", None): {"primary_method": "silage", "benefit_key": "preservation", "steps_key": "silage_steps", "alternatives": []}
-        },
-        "maize": {
-            ("green", None): {"primary_method": "silage", "benefit_key": "preservation", "steps_key": "silage_steps", "alternatives": []},
-            ("dry", None): {"primary_method": "urea_treatment", "benefit_key": "high_protein", "steps_key": "urea_treatment_steps", "alternatives": []}
-        },
-        "wheat": {
-            (None, True): {"primary_method": "fodder_blocks", "benefit_key": "preservation", "steps_key": "fodder_blocks_steps", "alternatives": ["urea_treatment"]},
-            ("dry", False): {"primary_method": "urea_treatment", "benefit_key": "high_protein", "steps_key": "urea_treatment_steps", "alternatives": []}
-        }
-    }
+    if not model:
+        raise ValueError("Gemini AI is not configured. Please check your API key.")
 
-    # Defaults
-    recommendation = {
-        "primary_method": "chopping",
-        "alternatives": ["fungal"],
-        "benefit_key": "soil_organic",
-        "steps_key": "chopping_steps"
-    }
+    try:
+        prompt = f"""
+        You are an expert agricultural consultant. Provide a specialized crop residue management plan.
+        Input Parameters:
+        - Crop: {crop}
+        - Residue State: {condition}
+        - Livestock on farm: {'Yes' if livestock else 'No'}
+        - Farmer's Primary Goal: {goal}
 
-    # Find matching crop
-    matched_crop = None
-    for c in rules.keys():
-        if c in crop:
-            matched_crop = c
-            break
+        Response Requirements:
+        - Provide the response STRICTLY in JSON format.
+        - Language: {lang} (if 'hi' use Hindi, if 'mr' use Marathi, else English).
+        - Use the following JSON schema:
+        {{
+            "primary_method": "Title of the recommended method",
+            "alternatives": ["Alternative 1", "Alternative 2"],
+            "benefit_key": "One-sentence key benefit",
+            "steps_key": ["Step 1", "Step 2", "Step 3", "Step 4", "Step 5"]
+        }}
+        """
+        response = model.generate_content(prompt)
+        text = response.text.strip()
+        
+        # Clean up potential markdown formatting
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0].strip()
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0].strip()
+            
+        data = json.loads(text)
+        
+        # Validate required fields
+        required = ["primary_method", "alternatives", "benefit_key", "steps_key"]
+        if all(k in data for k in required):
+            return data
+        else:
+            missing = [k for k in required if k not in data]
+            raise ValueError(f"AI response missing required fields: {', '.join(missing)}")
+            
+    except json.JSONDecodeError:
+        raise RuntimeError("AI generated an invalid response format. Please try again.")
+    except Exception as e:
+        raise RuntimeError(f"Gemini AI Error: {str(e)}")
 
-    if matched_crop:
-        crop_rules = rules[matched_crop]
-        # 1. Exact match
-        if (condition, livestock) in crop_rules:
-            recommendation.update(crop_rules[(condition, livestock)])
-        # 2. Match with wildcard condition (None)
-        elif (None, livestock) in crop_rules:
-            recommendation.update(crop_rules[(None, livestock)])
-        # 3. Match with wildcard livestock (None)
-        elif (condition, None) in crop_rules:
-            recommendation.update(crop_rules[(condition, None)])
-        # 4. Wildcard both
-        elif (None, None) in crop_rules:
-            recommendation.update(crop_rules[(None, None)])
 
-    return recommendation

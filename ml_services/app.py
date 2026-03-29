@@ -423,11 +423,13 @@ def residue_recommendation():
         condition = str(data.get("condition", ""))
         livestock = data.get("livestock", False)
         goal = str(data.get("goal", ""))
+        lang = str(data.get("lang", "en"))
 
-        result = get_residue_recommendation(crop, condition, livestock, goal)
+        result = get_residue_recommendation(crop, condition, livestock, goal, lang=lang, model=gemini_model)
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 
 @app.route("/gemini", methods=["POST"])
