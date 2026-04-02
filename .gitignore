@@ -43,7 +43,6 @@ wheels/
 # ML Specific
 ml_services/dataset/
 ml_services/Dataset/
-ml_services/disease_model/
 ml_services/__pycache__/
 ml_services/*.pkl
 ml_services/*.h5
