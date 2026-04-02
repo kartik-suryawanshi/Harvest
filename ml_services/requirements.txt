@@ -15,3 +15,7 @@ geopandas==1.0.1
 shapely==2.0.6
 pyproj==3.6.1
 fiona==1.9.6
+
+# Disease Prediction Module
+tensorflow==2.13.0
+Pillow>=9.0.0

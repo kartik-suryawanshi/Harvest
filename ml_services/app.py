@@ -8,6 +8,7 @@ import math
 import google.generativeai as genai
 import json
 from services.residue_logic import get_residue_recommendation
+from disease_routes import disease_bp
 
 # Load environment variables from .env file
 try:
@@ -18,6 +19,7 @@ except ImportError:
 
 app = Flask(__name__)
 CORS(app)
+app.register_blueprint(disease_bp)
 
 MODEL_PATH = os.environ.get('AGRI_MODEL_PATH', 'agri_forecasting_model.pkl')
 DATASET_PATH = os.environ.get('AGRI_DATASET_PATH', 'D:/Hackathons/Vortexa/HarvestIQ/ml_services/large_agri_dataset.csv')

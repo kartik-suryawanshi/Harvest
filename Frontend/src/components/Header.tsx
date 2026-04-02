@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Leaf, CloudRain, Sun, AlertTriangle, User, LogOut, Zap, Languages, LayoutDashboard, FileText, Shield } from 'lucide-react';
+import { Leaf, CloudRain, Sun, AlertTriangle, User, LogOut, Zap, Languages, LayoutDashboard, FileText, Shield, ShieldAlert } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { cn } from '@/lib/utils';
 
@@ -30,7 +30,8 @@ const Header = ({ scenario, onScenarioChange }: HeaderProps) => {
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/profile', label: 'Profile', icon: User },
     { path: '/schemes', label: 'Schemes', icon: Shield },
-    { path: '/residue-advisor', label: t('residue_advisor_title'), icon: Leaf }
+    { path: '/residue-advisor', label: t('residue_advisor_title'), icon: Leaf },
+    { path: '/disease-prediction', label: 'Disease Detection', icon: ShieldAlert }
   ];
 
   return (

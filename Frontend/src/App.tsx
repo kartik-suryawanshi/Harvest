@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import FarmerProfile from "./pages/FarmerProfile";
 import GovernmentSchemes from "./pages/GovernmentSchemes";
 import ResidueModule from "./pages/ResidueModule";
+import DiseasePrediction from "./pages/DiseasePrediction";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,11 @@ const App = () => (
             <Route path="/residue-advisor" element={
               <ProtectedRoute>
                 <ResidueModule />
+              </ProtectedRoute>
+            } />
+            <Route path="/disease-prediction" element={
+              <ProtectedRoute>
+                <DiseasePrediction />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
